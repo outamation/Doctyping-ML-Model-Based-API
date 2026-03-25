@@ -1,0 +1,11 @@
+To make the tar
+
+tar --exclude='.venv' \
+    --exclude='__pycache__' \
+    --exclude='*.pyc' \
+    --exclude='.git' \
+    --exclude='.gitignore' \
+    -czvf project_archive.tar.gz .
+
+To untar it
+tar -xzvf project_archive.tar.gz

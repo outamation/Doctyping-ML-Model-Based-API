@@ -19,7 +19,7 @@ ps aux | grep new_main.py
 
 ---
 
-## Step 2: Extract New Codebase Zip
+## Step 2: Extract New Codebase Zip or it can be tar
 
 ```bash
 cd /home/ubuntu/doc_classification_model_based_api

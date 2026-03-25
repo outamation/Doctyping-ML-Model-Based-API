@@ -17,3 +17,7 @@ wheels/
 
 # Model
 sc_model/
+
+# Archive
+*.tar.gz
+*.tar
