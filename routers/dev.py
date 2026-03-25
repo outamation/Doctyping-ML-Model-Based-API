@@ -2,21 +2,25 @@
 DEV-ONLY router — registered only when APP_MODE=development.
 Upload a raw PDF and get back per-page model predictions for quick testing.
 """
+import time
+
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from loguru import logger
 
 from ml_model.inference import run_inference
-from models.schemas import PageIn
-from utils.aggregation import build_response
+from models.schemas import LLMOutput, PageIn
+from utils.aggregation import build_llm_response
 from utils.pdf import extract_pages_from_bytes
 
 router = APIRouter(prefix="/dev", tags=["dev"])
 
 
-@router.post("/test-pdf")
+@router.post("/test-pdf", response_model=LLMOutput)
 async def test_pdf(file: UploadFile = File(...)):
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted.")
+
+    start = time.perf_counter()
 
     pdf_bytes = await file.read()
     logger.info("DEV /test-pdf — received '{}' ({} bytes)", file.filename, len(pdf_bytes))
@@ -28,19 +32,9 @@ async def test_pdf(file: UploadFile = File(...)):
     pages   = [PageIn(**p) for p in pages_raw]
     results = run_inference(pages)
 
-    logger.info(
-        "DEV /test-pdf — '{}' done ({} pages scored)", file.filename, len(results)
-    )
+    response = build_llm_response(0, file.filename, results, time_taken=time.perf_counter() - start)
 
-    pdf_name = file.filename
-    total_pages = len(pages)
-    response = build_response(0, pdf_name, total_pages, results)
-
-    logger.info(
-        "DEV /test-pdf — '{}' done | summons={} | complaint={}",
-        pdf_name,
-        response["pred_summons_count"],
-        response["pred_complaint_count"],
-    )
+    doc_counts = {d["document_type"]: len(d["page_numbers"]) for d in response["documents"]}
+    logger.info("DEV /test-pdf — '{}' done | {}", file.filename, doc_counts)
 
     return response

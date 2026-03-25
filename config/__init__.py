@@ -22,6 +22,11 @@ BATCH:      int   = int(os.getenv("BATCH", "32"))
 LABELS:     list  = ["OTHER", "SUMMONS", "COMPLAINT"]
 MIN_RAM_GB: float = float(os.getenv("MIN_RAM_GB", "2.0"))
 
+# ── LLM output defaults ────────────────────────────────────────────────
+DEFAULT_STATUS: str   = os.getenv("DEFAULT_STATUS", "pass")
+DEFAULT_COST:   float = float(os.getenv("DEFAULT_COST", "0.0"))
+DEFAULT_REASON: str   = os.getenv("DEFAULT_REASON", "")
+
 # ── Dev output ─────────────────────────────────────────────────────────
 # Only used when APP_MODE=development
 DEV_OUTPUT_DIR: Path = _ROOT / "dev_output"

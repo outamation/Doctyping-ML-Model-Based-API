@@ -4,7 +4,10 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 load_dotenv()
 
+from datetime import datetime, timezone
+
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from loguru import logger
 import uvicorn
 
@@ -29,6 +32,11 @@ async def lifespan(app: FastAPI):
 
 # ── App ───────────────────────────────────────────────────────────────
 app = FastAPI(title="SC Identifier API", lifespan=lifespan)
+
+@app.get("/")
+async def root():
+    return JSONResponse({"status": "API is running", "timestamp": datetime.now(timezone.utc).isoformat()})
+
 
 app.include_router(health.router)
 app.include_router(classify.router)
